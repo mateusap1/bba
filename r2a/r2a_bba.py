@@ -4,6 +4,7 @@ import time
 from statistics import mean
 import random
 
+
 # url do video de teste "url_mpd" : "http://164.41.67.41/DASHDatasetTest/BigBuckBunny/1sec/BigBuckBunny_1s_simple_2014_05_09.mpd
 # url do video do projeto "url_mpd": "http://45.171.101.167/DASHDataset/BigBuckBunny/1sec/BigBuckBunny_1s_simple_2014_05_09.mpd"
 class R2A_BBA(IR2A):
@@ -18,10 +19,10 @@ class R2A_BBA(IR2A):
         self.rate_min = 0
         self.rate_max = 0
         self.max_buf = 60
-    
+
     def handle_xml_request(self, msg):
         self.send_down(msg)
-    
+
     def handle_xml_response(self, msg):
         self.parsed_mpd = parse_mpd(msg.get_payload())
         self.qi = self.parsed_mpd.get_qi()
@@ -36,7 +37,7 @@ class R2A_BBA(IR2A):
         print()
         self.rate_min = 0
         self.rate_max = len(self.qi) - 1
-        
+
         self.send_up(msg)
 
     def handle_segment_size_request(self, msg):
@@ -72,4 +73,5 @@ class R2A_BBA(IR2A):
         pass
 
     def finalization(self):
-        pass
+        print(self.whiteboard.get_playback_qi())
+        print(self.whiteboard.get_playback_buffer_size())
