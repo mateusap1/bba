@@ -17,15 +17,35 @@ y2 = [item[1] for item in buffer]
 x3 = [item[0] for item in tp]
 y3 = [item[1] for item in tp]
 # Criar o gráfico
-plt.figure(figsize=(10, 6))
-plt.plot(x1, y1, label='Índice de qualidade', color='blue')
-plt.plot(x2, y2, label='Tamanho do Buffer', color='red')
-plt.plot(x3, y3, label='Throughput', color='purple')
+
+_, ax1 = plt.subplots(figsize=(10, 6))
+
+
+ax1.plot(x1, y1, label="QI", color="blue")
+ax1.plot(x2, y2, label="Buffer", color="green")
+# Configurar eixo esquerdo (ax1)
+ax1.set_xlabel("Segundos")
+ax1.set_ylabel("Buffer/QI", color="blue")
+ax1.tick_params(axis="y", labelcolor="blue")
+ax1.legend(loc="upper left")
+
+
+# Criar um segundo eixo y (ax2) no lado direito
+ax2 = ax1.twinx()
+
+# Plot para o conjunto de dados no eixo direito
+ax2.vlines(x3, [0], y3, label="Throughput medido", color="red")
+
+# Configurar eixo direito (ax2)
+ax2.set_ylabel("Mbps", color="red")
+ax2.tick_params(axis="y", labelcolor="red")
+ax2.legend(loc="upper right")
+plt.ylim(min(y3), max(y3) * 4 / 3)
+
+# Plot para o terceiro conjunto de dados no eixo esquerdo
+
 # Adicionar rótulos e legenda
-plt.xlabel('Segundos')
-plt.ylabel('Buffer/QI')
-plt.title('Tamanho do Buffer vs. Índice de qualidade')
-plt.legend()
+plt.title("Gráfico")
 
 # Exibir o gráfico
 plt.grid(True)
