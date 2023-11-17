@@ -1,21 +1,23 @@
 from r2a.ir2a import IR2A
 from player.parser import *
-import matplotlib.pyplot as plt
+
 import statistics
 import time
 import math
-from base.timer import Timer
 
 
 class R2A_BBA1(IR2A):
     def __init__(self, id):
         IR2A.__init__(self, id)
 
-        self.qi = []
+        # C(t) is system capacity
 
-        # How fast was our last chunk download in bps?
+        self.qi = []
+        self.throughputs = []
+
+        # How many bits per second can our network download
+        # in average?
         self.capacity_estimation = 0
-        self.safe_step_constant = 2
 
         self.last_request_time = None
 
@@ -57,9 +59,7 @@ class R2A_BBA1(IR2A):
                 (self.buffer_size - self.reservoir) * self.rate_index_max
             ) / (self.upper_reservoir - self.reservoir)
 
-            if self.capacity_estimation >= self.safe_step_constant * (self.rate_index + 1):
-                self.rate_index = math.floor(ideal_rate_index)
-            elif ideal_rate_index >= (self.rate_index + 1):
+            if ideal_rate_index >= (self.rate_index + 1):
                 self.rate_index = math.floor(ideal_rate_index)
             elif ideal_rate_index <= (self.rate_index - 1):
                 self.rate_index = math.ceil(ideal_rate_index)
@@ -77,13 +77,14 @@ class R2A_BBA1(IR2A):
         average_chunk_size = msg.get_quality_id()
         current_chunk_size = msg.get_bit_length()
 
-        if current_chunk_size != 0:
-            # The throughput of the last download in bits per second
-            self.capacity_estimation = current_chunk_size / time_to_download
+        self.throughputs.append(current_chunk_size / time_to_download)
+
+        # The avarage throughput in bits per second
+        network_capacity = statistics.mean(self.throughputs)
 
         # Make reservoir estimation
         target_reservoir = (2 * self.buffer_size) * (
-            (average_chunk_size / self.capacity_estimation) - 1
+            (average_chunk_size / network_capacity) - 1
         )
 
         self.reservoir = min(
