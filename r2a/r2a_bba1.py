@@ -84,7 +84,7 @@ class R2A_BBA1(IR2A):
 
         # Make reservoir estimation
         target_reservoir = (2 * self.buffer_size) * (
-            (average_chunk_size / network_capacity) - 1
+            1 - (average_chunk_size / network_capacity)
         )
 
         self.reservoir = min(

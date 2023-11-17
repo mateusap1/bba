@@ -98,7 +98,6 @@ class R2A_BBA2(IR2A):
     def handle_segment_size_response(self, msg):
         # Estimate network capacity
         time_to_download = time.perf_counter() - self.last_request_time
-        self.capacity_duration = time_to_download
 
         # In bits
         average_chunk_size = msg.get_quality_id()
@@ -111,7 +110,7 @@ class R2A_BBA2(IR2A):
 
         # Make reservoir estimation
         target_reservoir = (2 * self.buffer_size) * (
-            (average_chunk_size / network_capacity) - 1
+            1 - (average_chunk_size / network_capacity)
         )
 
         self.reservoir = min(
