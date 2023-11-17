@@ -13,8 +13,8 @@ class R2A_BBA0(IR2A):
         self.qi = []
         self.throughputs = []
 
-        self.reservoir = 20
-        self.upper_reservoir = 54
+        self.reservoir = 90
+        self.upper_reservoir = 216
 
         self.rate_index: int = 0
         self.rate_index_min: int = 0

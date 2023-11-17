@@ -21,11 +21,11 @@ class R2A_BBA1(IR2A):
 
         self.last_request_time = None
 
-        self.max_reservoir = 35
-        self.min_reservoir: int = 2
+        self.max_reservoir = 140
+        self.min_reservoir: int = 8
 
-        self.reservoir = 20
-        self.upper_reservoir = 54
+        self.reservoir = 90
+        self.upper_reservoir = 216
 
         self.rate_index: int = 0
         self.rate_index_min: int = 0
