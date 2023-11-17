@@ -40,32 +40,45 @@ class R2A_BBA2(IR2A):
     def handle_segment_size_request(self, msg):
         self.buffer_size = self.whiteboard.get_amount_video_to_play()
 
-        new_rate_index = None
+        new_rate_index_startup = None
+        buffer_decreasing = False
         if self.capacity_duration is not None:
             chunk_size = self.qi[self.rate_index]
             capacity = chunk_size / self.capacity_duration
+
+            buffer_decreasing = self.capacity_duration >= 1
 
             # Calculate ideal based on capacity in startup phase
             ideal_rate_quality = (capacity / self.quality_step_constant)
 
             if ideal_rate_quality >= self.qi[self.rate_index + 1]:
-                new_rate_index = self.rate_index + 1
+                new_rate_index_startup = self.rate_index + 1
 
-        if new_rate_index is not None:
-            self.rate_index = new_rate_index
-        elif self.buffer_size <= self.reservoir:
-            self.rate_index = self.rate_index_min
+
+        if self.buffer_size <= self.reservoir:
+            new_rate_index_buffer = self.rate_index_min
         elif self.buffer_size >= self.upper_reservoir:
-            self.rate_index = self.rate_index_max
+            new_rate_index_buffer = self.rate_index_max
         else:
             ideal_rate_index = (
                 (self.buffer_size - self.reservoir) * self.rate_index_max
             ) / (self.upper_reservoir - self.reservoir)
 
             if ideal_rate_index >= (self.rate_index + 1):
-                self.rate_index = math.floor(ideal_rate_index)
+                new_rate_index_buffer = math.floor(ideal_rate_index)
             elif ideal_rate_index <= (self.rate_index - 1):
-                self.rate_index = math.ceil(ideal_rate_index)
+                new_rate_index_buffer = math.ceil(ideal_rate_index)
+            else:
+                new_rate_index_buffer = self.rate_index
+
+        if new_rate_index_startup is None:
+            self.rate_index = new_rate_index_buffer
+        elif new_rate_index_buffer > new_rate_index_startup:
+            self.rate_index = new_rate_index_buffer
+        elif buffer_decreasing:
+            self.rate_index = new_rate_index_buffer
+        else:
+            self.rate_index = new_rate_index_startup
 
         msg.add_quality_id(self.qi[self.rate_index])
 
